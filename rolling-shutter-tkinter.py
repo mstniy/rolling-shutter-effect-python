@@ -19,9 +19,11 @@ propeller_cache = {}
 
 for frame in range(height):
     propellors = np.zeros_like(plane, dtype=np.bool)
-    angle = 2 * np.pi * ( propeller_angular_speed * frame / height + 1/12)
+    base_angle = 2 * np.pi * ( propeller_angular_speed * frame / height + 1/12)
     for blade in range(6):
-        phase = np.exp( 1j * (angle + blade * np.pi/3))
+        this_angle = base_angle + blade * np.pi/3
+        this_angle = round(this_angle, 3)
+        phase = np.exp( 1j * this_angle)
         if phase in propeller_cache:
             this_propellor = propeller_cache[phase]
         else:
