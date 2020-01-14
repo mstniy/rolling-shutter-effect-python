@@ -20,6 +20,7 @@ for propeller_angular_speed in np.arange(0.1, 6.001, 0.1):
     for frame in range(height):
         propellors = np.zeros_like(plane, dtype=np.bool)
         base_angle = 2 * np.pi * ( propeller_angular_speed * frame / height + 1/12)
+        base_angle %= np.pi/3
         for blade in range(6):
             this_angle = base_angle + blade * np.pi/3
             this_angle = round(this_angle, 3)
