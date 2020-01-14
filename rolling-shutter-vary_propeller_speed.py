@@ -14,24 +14,24 @@ plane_abs = abs(plane)
 
 propeller_cache = {}
 
-for propeller_angular_speed in np.arange(0.1, 6.001, 0.1):
+for propeller_angular_speed in np.arange(0.03, 2.001, 0.03):
     bentprop = np.zeros_like(plane, dtype=np.bool)
     
     for frame in range(height):
-        propellors = np.zeros_like(plane, dtype=np.bool)
         base_angle = 2 * np.pi * ( propeller_angular_speed * frame / height + 1/12)
         base_angle %= np.pi/3
-        for blade in range(6):
-            this_angle = base_angle + blade * np.pi/3
-            this_angle = round(this_angle, 3)
-            phase = np.exp( 1j * this_angle)
-            if phase in propeller_cache:
-                this_propellor = propeller_cache[phase]
-            else:
+        base_angle = round(base_angle, 3)
+        if base_angle in propeller_cache:
+            propellors = propeller_cache[base_angle]
+        else:
+            propellors = np.zeros_like(plane, dtype=np.bool)
+            for blade in range(6):
+                this_angle = base_angle + blade * np.pi/3
+                phase = np.exp( 1j * this_angle)
                 ellipse = abs(plane - 0.49 * height * phase) + plane_abs
                 this_propellor = ellipse < 0.5 * height
-                propeller_cache[phase] = this_propellor
-            propellors |= this_propellor
+                propellors |= this_propellor
+            propeller_cache[base_angle] = propellors
 
         bentprop[frame] = propellors[frame]
     #greenbar = list(range(frame, min(frame + 3, height -3)))
@@ -41,7 +41,7 @@ for propeller_angular_speed in np.arange(0.1, 6.001, 0.1):
     #composite[greenbar] = 3
     rgb = rgbcolors.astype(np.uint8)[composite]
     image = Image.fromarray(rgb, mode="RGB")
-    image.save('vary_speed/{:.1f}.png'.format(propeller_angular_speed))
+    image.save('vary_speed/{:.2f}.png'.format(propeller_angular_speed))
     tk_image = ImageTk.PhotoImage(image)
     label.config(image=tk_image)
     root.update()

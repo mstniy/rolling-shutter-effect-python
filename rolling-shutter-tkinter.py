@@ -18,20 +18,20 @@ animation_speed=3
 propeller_cache = {}
 
 for frame in range(height):
-    propellors = np.zeros_like(plane, dtype=np.bool)
     base_angle = 2 * np.pi * ( propeller_angular_speed * frame / height + 1/12)
     base_angle %= np.pi/3
-    for blade in range(6):
-        this_angle = base_angle + blade * np.pi/3
-        this_angle = round(this_angle, 3)
-        phase = np.exp( 1j * this_angle)
-        if phase in propeller_cache:
-            this_propellor = propeller_cache[phase]
-        else:
+    base_angle = round(base_angle, 3)
+    if base_angle in propeller_cache:
+        propellors = propeller_cache[base_angle]
+    else:
+        propellors = np.zeros_like(plane, dtype=np.bool)
+        for blade in range(6):
+            this_angle = base_angle + blade * np.pi/3
+            phase = np.exp( 1j * this_angle)
             ellipse = abs(plane - 0.49 * height * phase) + plane_abs
             this_propellor = ellipse < 0.5 * height
-            propeller_cache[phase] = this_propellor
-        propellors |= this_propellor
+            propellors |= this_propellor
+        propeller_cache[base_angle] = propellors
 
     bentprop[frame] = propellors[frame]
     if frame % animation_speed == 0:
